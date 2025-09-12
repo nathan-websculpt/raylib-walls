@@ -7,12 +7,14 @@
 #include "../include/core/colored_wall.h"
 #include "../include/core/managed_texture.h"
 
+// g++ -std=c++23 src/main.cpp src/core/wall.cpp src/core/wall_handler.cpp src/core/textured_wall.cpp src/core/textured_wall_rec.cpp src/core/colored_wall.cpp src/core/draw_utils.cpp -o main -Iinclude -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+
 int main(void)
 {
     const int screenWidth = 4400;
     const int screenHeight = 2800;
 
-    InitWindow(screenWidth, screenHeight, "FPS SYSTEM");
+    InitWindow(screenWidth, screenHeight, "RAYLIB WALLS");
 
     Camera camera { 0 };
     camera.position = (Vector3){ 0.0f, 2.0f, 4.0f };
@@ -28,7 +30,7 @@ int main(void)
     SetTargetFPS(60);
 
     // RAII Texture
-    ManagedTexture brick("assets/models/brick/textures/Brick_Wall_5M_Berlin_yhtvxwB_4K_baseColor.png"); 
+    ManagedTexture brick("assets/models/brick/textures/Brick_Wall_5M_Berlin_yhtvxwB_4K_baseColor.png");
 
     WallHandler wallHandler;
 
@@ -67,7 +69,7 @@ int main(void)
 
             BeginMode3D(camera);
 
-                DrawPlane((Vector3){ 0.0f, 0.0f, 0.0f }, (Vector2){ 32.0f, 32.0f }, LIGHTGRAY); 
+                DrawPlane((Vector3){ 0.0f, 0.0f, 0.0f }, (Vector2){ 32.0f, 32.0f }, LIGHTGRAY);
                 wallHandler.DrawWalls(true);
 
             EndMode3D();

@@ -2,7 +2,7 @@
 
 # Compile
 ```
-g++ src/main.cpp src/core/wall.cpp src/core/wall_handler.cpp -o main -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+g++ -std=c++23 src/main.cpp src/core/wall.cpp src/core/wall_handler.cpp src/core/textured_wall.cpp src/core/textured_wall_rec.cpp src/core/colored_wall.cpp src/core/draw_utils.cpp -o main -Iinclude -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
 ./main
 ```
