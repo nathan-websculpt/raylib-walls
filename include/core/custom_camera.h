@@ -206,7 +206,7 @@ RLAPI Matrix GetCameraProjectionMatrix(Camera *camera, float aspect);
 //----------------------------------------------------------------------------------
 // Defines and Macros
 //----------------------------------------------------------------------------------
-#define CAMERA_MOVE_SPEED                               5.4f       // Units per second
+#define CAMERA_MOVE_SPEED                               85.0f       // Units per second
 #define CAMERA_ROTATION_SPEED                           1.5f       // Custom: changed from 0.03f
 #define CAMERA_PAN_SPEED                                0.2f
 
@@ -478,6 +478,13 @@ void UpdateCamera(Camera *camera, int mode)
         if (IsKeyDown(KEY_LEFT)) CameraYaw(camera, cameraRotationSpeed, rotateAroundTarget);
         if (IsKeyDown(KEY_Q)) CameraRoll(camera, -cameraRotationSpeed);
         if (IsKeyDown(KEY_E)) CameraRoll(camera, cameraRotationSpeed);
+
+        // Custom: Intricate Aiming
+        // TODO: fix magic numbers
+        if (IsKeyDown(KEY_K)) CameraPitch(camera, (-cameraRotationSpeed * 0.1f), lockView, rotateAroundTarget, rotateUp);
+        if (IsKeyDown(KEY_I)) CameraPitch(camera, (cameraRotationSpeed * 0.1f), lockView, rotateAroundTarget, rotateUp);
+        if (IsKeyDown(KEY_L)) CameraYaw(camera, (-cameraRotationSpeed * 0.1f), rotateAroundTarget);
+        if (IsKeyDown(KEY_J)) CameraYaw(camera, (cameraRotationSpeed * 0.1f), rotateAroundTarget);
 
         // Camera movement
         // Camera pan (for CAMERA_FREE)

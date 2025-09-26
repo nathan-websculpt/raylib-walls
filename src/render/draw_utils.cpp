@@ -13,12 +13,13 @@
 *
 ********************************************************************************************/
 
-#include "../../include/core/draw_utils.h"
+#include "../../include/render/draw_utils.h"
+#include <iostream>
 
-// Copy your two functions here exactly as you had them:
 void DrawCubeTexture(const Texture2D& texture, const Vector3& position,
                      float width, float height, float length, Color color)
 {
+    std::cout << "DrawCubeTexture called  " << std::endl;
     float x = position.x;
     float y = position.y;
     float z = position.z;
