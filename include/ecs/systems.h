@@ -132,28 +132,16 @@ private:
 //      ColoredRender or TexturedRender components 
 class DrawSystem : public ISystem {
 public:
-    void update(Registry& reg, float deltaTime = 0.0f) override {
-        // TODO: system loops all WorldTransforms twice - either enforce “only one render component per entity” or combine into one loop that checks both
-
-        // colored walls
+    void update(Registry& reg, float deltaTime = 0.0f) override {       
         for (const auto& entityComp : reg.view<WorldTransform>()) {
             Entity e = entityComp.first;
             const WorldTransform& wt = *entityComp.second;
             
-            if (auto cr = reg.get<ColoredRender>(e)) {
-                DrawCube(wt.position, wt.size.x, wt.size.y, wt.size.z, cr->color);
-            }
-        }
-        
-        // textured walls
-        for (const auto& entityComp : reg.view<WorldTransform>()) {
-            Entity e = entityComp.first;
-            const WorldTransform& wt = *entityComp.second;
-            
-            if (auto tr = reg.get<TexturedRender>(e))
+            if (auto cr = reg.get<ColoredRender>(e)) 
+                DrawCube(wt.position, wt.size.x, wt.size.y, wt.size.z, cr->color); // colored walls
+            else if (auto tr = reg.get<TexturedRender>(e))
                 if (tr->texture)
-                    DrawCubeTexture(tr->texture->get(), wt.position, wt.size.x, wt.size.y, wt.size.z, WHITE);
-                
+                    DrawCubeTexture(tr->texture->get(), wt.position, wt.size.x, wt.size.y, wt.size.z, WHITE); // textured walls
         }
     }
 };

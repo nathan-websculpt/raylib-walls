@@ -28,7 +28,7 @@ int main(void)
 
     int cameraMode = CAMERA_FIRST_PERSON;
 
-    DisableCursor();
+    // DisableCursor(); ///////////////////////
 
     SetTargetFPS(60);
 

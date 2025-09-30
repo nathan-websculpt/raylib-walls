@@ -33,11 +33,11 @@ public:
 template<typename T>
 class ComponentPool : public IComponentPool {
 private:
-    std::vector<std::optional<T>> components;
-    std::unordered_map<Entity, size_t> entityToIndex;
-    std::vector<Entity> indexToEntity;
-    std::queue<size_t> freeIndices;
-    size_t validCount = 0;
+    std::vector<std::optional<T>> components; // storage for components
+    std::unordered_map<Entity, size_t> entityToIndex; // maps an Entity (an integer ID) to its corresponding index in the components vector. Serves as lookup table to quickly find the index of an entity's component in the components vector
+    std::vector<Entity> indexToEntity; // reverse mapping for the entityToIndex map. Maps an index in the components vector back to the Entity that owns the component at that index
+    std::queue<size_t> freeIndices; //  tracks indices in the components vector that are no longer in use and can be reused for new components; in the erase function, the index of the removed component is added to the freeIndices queue
+    size_t validCount = 0; // used to track the number of active (valid) components currently stored in the pool
 
 public:
     T* add(Entity e, T comp) {
@@ -123,7 +123,7 @@ private:
     std::vector<Entity> entities;
     std::unordered_set<Entity> destroyedEntities; // track destroyed entities
     std::unordered_map<std::type_index, std::unique_ptr<IComponentPool>> pools;
-    std::queue<Entity> freeList;
+    std::queue<Entity> freeList; // entity IDs that were destroyed and are now available for reuse (FIFO)
 
     template<typename T>
     ComponentPool<T>* getPool() {
