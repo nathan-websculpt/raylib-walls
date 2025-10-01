@@ -38,9 +38,9 @@ int main(void)
         // TODO:
     }
     
-    Registry reg;
+    Registry registry;
     
-    SystemManager systemManager(reg);
+    SystemManager systemManager(registry);
 
     // Add your systems to the manager
     TransformSystem& transformSystem = systemManager.addSystem<TransformSystem>();
@@ -57,20 +57,20 @@ int main(void)
     float spacing = roomSize.z/2 + hallSize.z/2; // 200/2 + 80/2 = 140
 
     // place rooms in front and back, hallway in between
-    Entity room1 = CreateRoom(reg, { 0, 0, -spacing }, roomSize, brick, std::vector<Wall::Side>{ Wall::Side::Back });  // open back
-    Entity room2 = CreateRoom(reg, { 0, 0,  spacing }, roomSize, brick, std::vector<Wall::Side>{ Wall::Side::Front }); // open front    
-    Entity hall  = CreateHallway(reg, { 0, 0, 0 }, hallSize, brick);
+    Entity room1 = CreateRoom(registry, { 0, 0, -spacing }, roomSize, brick, std::vector<Wall::Side>{ Wall::Side::Back });  // open back
+    Entity room2 = CreateRoom(registry, { 0, 0,  spacing }, roomSize, brick, std::vector<Wall::Side>{ Wall::Side::Front }); // open front    
+    Entity hall  = CreateHallway(registry, { 0, 0, 0 }, hallSize, brick);
 
     // now calc WorldTransforms for all entities and anchors
-    transformSystem.update(reg);
+    transformSystem.update(registry);
 
     // helper to find anchor on a parent with a specific direction
     // used to locate the specific anchor entities on room1, room2, and hall based on their intended connection directions
     auto findAnchorByDir = [&](Entity parentEntity, Vector3 dir)->Entity {
-        if (auto children = reg.get<Children>(parentEntity)) {
+        if (auto children = registry.get<Children>(parentEntity)) {
             for (Entity child : children->entities) {
                 // if the child entity has an anchor component, it normalizes both the given direction and the anchor direction
-                if (auto a = reg.get<Anchor>(child)) {
+                if (auto a = registry.get<Anchor>(child)) {
                     // normalize and compare directions
                     Vector3 normalizedDir = Vector3Normalize(dir);
                     Vector3 normalizedAnchorDir = Vector3Normalize(a->direction);
@@ -93,7 +93,7 @@ int main(void)
     // in order to link room1 to hall and room2 to hall 
     // this snaps positions and carves doorways
     if (r1_right != INVALID_ENTITY && hall_left != INVALID_ENTITY) {
-        ConnectAnchors(reg, r1_right, hall_left);
+        ConnectAnchors(registry, r1_right, hall_left);
     } else {
         std::cerr << "DEV Warning: missing anchors for room1<->hall connection\n";
     }
@@ -103,13 +103,13 @@ int main(void)
     Entity hall_right = findAnchorByDir(hall, { 1, 0, 0 });
 
     if (r2_left != INVALID_ENTITY && hall_right != INVALID_ENTITY) {
-        ConnectAnchors(reg, r2_left, hall_right);
+        ConnectAnchors(registry, r2_left, hall_right);
     } else {
         std::cerr << "DEV Warning: missing anchors for room2<->hall connection\n";
     }
 
     // called again to update transforms after the connection adjustments
-    transformSystem.update(reg);
+    transformSystem.update(registry);
 
     while (!WindowShouldClose())
     {   
@@ -120,7 +120,7 @@ int main(void)
         // periodic cleanup about every 1000 frames
         static int frameCount = 0;
         if (++frameCount % 1000 == 0) {
-            reg.cleanup();
+            registry.cleanup();
         }
         // transformSystem.update(reg, dt); // currently nothing moves, but system supports it
 
