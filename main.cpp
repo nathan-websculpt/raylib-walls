@@ -40,9 +40,11 @@ int main(void)
     
     Registry reg;
     
-    // TODO: when I figure out what this will become, I will bring the SystemManager back in...
-    TransformSystem transformSystem;
-    DrawSystem drawSystem;
+    SystemManager systemManager(reg);
+
+    // Add your systems to the manager
+    TransformSystem& transformSystem = systemManager.addSystem<TransformSystem>();
+    DrawSystem& drawSystem = systemManager.addSystem<DrawSystem>();
     
     // scale factor
     const float S = 20.0f;
@@ -128,7 +130,7 @@ int main(void)
 
             BeginMode3D(camera);
 
-                drawSystem.update(reg, dt); // draw all entities (wall system)
+                systemManager.update(dt);
 
             EndMode3D();
         EndDrawing();

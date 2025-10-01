@@ -40,6 +40,7 @@ private:
     size_t validCount = 0; // used to track the number of active (valid) components currently stored in the pool
 
 public:
+    // components[index] = std::move(comp); || components.emplace_back(std::move(comp));
     T* add(Entity e, T comp) {
         size_t index;
 
@@ -119,8 +120,8 @@ public:
 
 class Registry {
 private:
+    size_t aliveEntityCount = 0;
     Entity nextId = 1;
-    std::vector<Entity> entities;
     std::unordered_set<Entity> destroyedEntities; // track destroyed entities
     std::unordered_map<std::type_index, std::unique_ptr<IComponentPool>> pools;
     std::queue<Entity> freeList; // entity IDs that were destroyed and are now available for reuse (FIFO)
@@ -150,37 +151,26 @@ private:
 public:
     Entity create() {
         Entity e;
-        
         if (!freeList.empty()) {
             e = freeList.front();
             freeList.pop();
         } else {
             e = nextId++;
         }
-        
-        entities.push_back(e);
-        destroyedEntities.erase(e); // ensure it's not marked as destroyed
+        destroyedEntities.erase(e);
+        aliveEntityCount++;
         return e;
     }
 
     void destroy(Entity e) {
-        // check if entity is already destroyed
-        if (destroyedEntities.find(e) != destroyedEntities.end()) {
-            return;
-        }
+        if (destroyedEntities.count(e)) return;
         
-        // mark as destroyed for lookup
         destroyedEntities.insert(e);
-        
-        // remove from all component pools
         for (auto& [_, pool] : pools) {
             pool->erase(e);
         }
-        
         freeList.push(e);
-
-        // TODO: shrink components vector as well
-        // TODO: enforce child cleanup
+        aliveEntityCount--;  // ←
     }
 
     template<typename T>
@@ -267,6 +257,7 @@ public:
     }
 
     // multi-component view - filter out destroyed entities
+    // filters entities based on the presence of the specified components
     template<typename T1, typename T2, typename... Rest>
     std::vector<std::tuple<Entity, T1*, T2*, Rest*...>> view() {
         std::vector<std::tuple<Entity, T1*, T2*, Rest*...>> result;
@@ -328,18 +319,16 @@ public:
     }
 
     size_t entityCount() const {
-        // TODO: is 'entities.size()' misleading since entities contains destroyed ones until cleanup occurs on the main loop
-        // TODO: remove from entities on destroy?
-        return entities.size() - destroyedEntities.size();
+        return aliveEntityCount;
     }
     
     void cleanup() {
         // remove destroyed entities from the entities list
-        entities.erase(
-            std::remove_if(entities.begin(), entities.end(),
-                [this](Entity e) { return destroyedEntities.find(e) != destroyedEntities.end(); }),
-            entities.end()
-        );
+        // entities.erase(
+        //     std::remove_if(entities.begin(), entities.end(),
+        //         [this](Entity e) { return destroyedEntities.find(e) != destroyedEntities.end(); }),
+        //     entities.end()
+        // );
         destroyedEntities.clear();
 
         // ... more sophisticated memory management later 
