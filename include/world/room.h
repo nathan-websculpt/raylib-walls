@@ -31,9 +31,10 @@ inline Entity CreateRoom(Registry& reg, Vector3 pos, Vector3 size, std::shared_p
             reg.add<ColoredRender>(wall, ColoredRender{ GRAY });
             
         reg.add<Collision>(wall, Collision{});
-        reg.add<Parent>(wall, Parent{ room });
-        reg.add<Wall>(wall, Wall{ side });
+        reg.add<Parent>(wall, Parent{ room }); // add new parent component to wall entity, associating wall with the room (as its parent)
+        reg.add<Wall>(wall, Wall{ side }); // wall cpmponent added to wall entity 
         
+        // make sure that the room entity has a Children component before attempting to access/modify it
         if (auto children = reg.get<Children>(room))
             children->entities.push_back(wall);
             
@@ -57,8 +58,8 @@ inline Entity CreateRoom(Registry& reg, Vector3 pos, Vector3 size, std::shared_p
         Entity a = reg.create();
         reg.add<TransformComp>(a, TransformComp{ localPos, {0.1f, 0.1f, 0.1f} });
         reg.add<WorldTransform>(a, WorldTransform{});
-        reg.add<Anchor>(a, Anchor{ localPos, dir, INVALID_ENTITY });
-        reg.add<Parent>(a, Parent{ room });
+        reg.add<Anchor>(a, Anchor{ localPos, dir, INVALID_ENTITY }); // anchor component added to anchor entity
+        reg.add<Parent>(a, Parent{ room }); // add new parent component to anchor entity, associating anchor with the room (as its parent)
         
         if (auto children = reg.get<Children>(room)) children->entities.push_back(a);
         
