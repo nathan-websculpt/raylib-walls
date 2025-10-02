@@ -116,12 +116,7 @@ int main(void)
         UpdateCamera(&camera, cameraMode); 
 
         float dt = GetFrameTime();
-
-        // periodic cleanup about every 1000 frames
-        static int frameCount = 0;
-        if (++frameCount % 1000 == 0) {
-            registry.cleanup();
-        }
+        
         // transformSystem.update(reg, dt); // currently nothing moves, but system supports it
 
         BeginDrawing();
