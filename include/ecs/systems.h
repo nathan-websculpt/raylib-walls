@@ -72,6 +72,7 @@ public:
         for (Entity root : rootEntities) {
             queue.push(root);
         }
+
         // for each entity, retrieve its children from the parentToChildren map 
         // and update their transforms by calling the updateEntityTransform function
         // ... then add the children to the queue for further processing
@@ -112,9 +113,8 @@ private:
                     // set world transform
                     world.position = worldPos;
                     world.rotation = worldRot;
-                    world.size = transform->size; 
-                    // TODO: if hierarchical scaling is needed, multiply by parent size:
-                    // world.size = Vector3Multiply(parentWorldTransform->size, transform->size);
+                    world.size = transform->size;                     
+                    // world.size = Vector3Multiply(parentWorldTransform->size, transform->size); // TODO: if hierarchical scaling is needed, multiply by parent size
                 } else {
                     // FALLBACK: use local transform if parent world transform doesn't exist
                     world.position = transform->position;

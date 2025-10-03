@@ -28,7 +28,7 @@ int main(void)
 
     int cameraMode = CAMERA_FIRST_PERSON;
 
-    // DisableCursor(); ///////////////////////
+    DisableCursor(); ///////////////////////
 
     SetTargetFPS(60);
 
@@ -42,7 +42,6 @@ int main(void)
     
     SystemManager systemManager(registry);
 
-    // Add your systems to the manager
     TransformSystem& transformSystem = systemManager.addSystem<TransformSystem>();
     DrawSystem& drawSystem = systemManager.addSystem<DrawSystem>();
     

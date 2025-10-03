@@ -38,10 +38,81 @@ chmod +x build_tests.sh
 ## BRANCH NOTES
 
 Has been changed from a class-based (polymorphic) system to an ECS system. 
+
+# The ECS
+
+* Uses a sparse array (indexed by entity ID) that points to indices in dense arrays (entities + components).  
+* Deletion swaps the target with the last element in the dense arrays ( pops the last ), and updates the sparse entry for the moved entity, and marks the deleted entity as absent in the sparse array.  
+    * When an entity is destroyed: 
+        * Its ID is put back into a freeIds queue for reuse.
+        But its version is incremented.
+            * If version hits max (255), it wraps back to 1.
+         
+
+    * When you try to use an old Entity handle: 
+        * The system checks: "Does the current version for this ID match the handle’s version?"
+            * If no → the handle is stale (refers to a deleted entity) and access is denied.
+
+#### What Entity Versions solves
+
+An `Entity` is a **Versioned Handle** to prevent *Use-After-Free* problems
+
+Without Versions:
+```cpp
+Entity e = registry.create();   // e.id = 5
+registry.destroy(e);
+Entity f = registry.create();   // reuses id = 5
+// Now e and f have same ID - using e accidentally accesses f!!!
+```
+
+With Versions:
+```cpp
+Entity e = {id:5, ver:1}
+registry.destroy(e);            // version for id = 5 becomes 2
+Entity f = {id:5, ver:2}        // new entity
+// Now e != f
+```
+         
+     
 	
 
+# Rooms && Walls
 
+`TransformComp`: Local position, size, and rotation
+
+`WorldTransform`: World position, size, and rotation (computed)
+
+`ColoredRender`/`TexturedRender`: Rendering components
+
+`Wall`: Identifies wall entities and their orientation
+
+`Anchor`: Connection points between rooms and hallways
 	
+A `room` is an entity with:
 
+* `TransformComp` and `WorldTransform` for position and size.
+* `Children` containing its walls and anchors.
 
+`Walls` are child entities, each with:
 
+* `TransformComp` defining their local position and thickness.
+* `Wall::Side` metadata (Front, Back, Left, Right)... currently used to omit walls
+* Either a texture (`TexturedRender`) or a flat color (`ColoredRender`).
+
+Skipped walls: `CreateRoom` takes a list of `skipWalls`, omitting entire sides if needed (open front/back/etc).
+
+#### Anchors
+
+Each room automatically generates `anchors` in the center of its four directions. These serve as connection points for Hallways.
+
+A `hallway` is essentially a thin room.
+
+`Anchors` are tiny child entities with:
+
+* `TransformComp` (local offset at wall midpoint).
+* `Anchor` (stores direction vector + optional connectedTo reference).
+
+# In Game
+
+- Aim fast with arrow keys
+- Aim slow with I, J, K, L

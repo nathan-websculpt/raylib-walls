@@ -10,7 +10,7 @@
 #include <unordered_set>
 #include <cstdint>
 #include <limits>
-#include <typeinfo> // added for typeid
+#include <typeinfo> // for typeid
 #include <ranges>   // c++23
 
 // 'Entity' is now a versioned handle: 24-bit ID + 8-bit generation
@@ -255,7 +255,7 @@ public:
         enforceEntityVersionSize(id);
         uint8_t& ver = entityVersions[id];        
         if (ver == 0) ver = INITIAL_VERSION; // initialize version for new entities
-        // note: ver gets incremented in destroy()
+        // note: version gets incremented in destroy()
 
         aliveEntityCount++;
         return Entity{id, ver};
